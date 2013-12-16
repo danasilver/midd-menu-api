@@ -1,6 +1,6 @@
 var request = require('request'),
     cheerio = require('cheerio'),
-    dateFormat = require('dateFormat');
+    dateFormat = require('dateformat');
 
 var Menu = {
     date: dateFormat(new Date(), 'yyyy-mm-dd, hh:MM:ss TT'),
