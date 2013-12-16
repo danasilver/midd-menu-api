@@ -4,7 +4,7 @@ var request = require('request'),
 
 var Menu = {
     date: dateFormat(new Date(), 'yyyy-mm-dd, hh:MM:ss TT'),
-    diningHalls: {
+    dining_halls: {
         atwater: {
             breakfast: null,
             lunch: null
@@ -18,6 +18,9 @@ var Menu = {
             breakfast: null,
             lunch: null,
             dinner: null
+        },
+        language_tables: {
+            lunch: null
         }
     }
 }
@@ -38,6 +41,7 @@ function parseMenu(err, res, body) {
             atwater: null,
             proctor: null,
             ross: null
+            language_tables: null
         },
         parseMeal = function(location, meal, $node) {
             var itemsArr = $node.find('.views-field-body').text().trim().split('\n');
@@ -56,6 +60,9 @@ function parseMenu(err, res, body) {
                 break;
             case 'Ross':
                 diningNodes.ross = $this.next();
+                break;
+            case 'Language Tables':
+                diningNodes.language_tables = $this.next();
                 break;
         }
     });
@@ -77,13 +84,6 @@ function parseMenu(err, res, body) {
             }
         });
     };
-
-    // return {
-    //     'date': date,
-    //     'atwater': diningHalls.atwater || [noInfoMessage],
-    //     'proctor': diningHalls.proctor || [noInfoMessage],
-    //     'ross': diningHalls.ross || [noInfoMessage],
-    // };
 
 }
 
