@@ -40,12 +40,12 @@ function parseMenu(err, res, body) {
         diningNodes = {
             atwater: null,
             proctor: null,
-            ross: null
+            ross: null,
             language_tables: null
         },
         parseMeal = function(location, meal, $node) {
             var itemsArr = $node.find('.views-field-body').text().trim().split('\n');
-            Menu.diningHalls[location][meal] = itemsArr;
+            Menu.dining_halls[location][meal] = itemsArr;
         };
 
     // Separate Atwater, Proctor, Ross
