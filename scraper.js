@@ -3,7 +3,7 @@ var request = require('request'),
     dateFormat = require('dateformat');
 
 var Menu = {
-    date: dateFormat(new Date(), 'yyyy-mm-dd, hh:MM:ss TT'),
+    date: '',
     diningHalls: {
         atwater: {
             breakfast: null,
@@ -78,16 +78,10 @@ function parseMenu(err, res, body) {
         });
     };
 
-    // return {
-    //     'date': date,
-    //     'atwater': diningHalls.atwater || [noInfoMessage],
-    //     'proctor': diningHalls.proctor || [noInfoMessage],
-    //     'ross': diningHalls.ross || [noInfoMessage],
-    // };
-
 }
 
-function scrapeMenu() {
+function scrapeMenu(date) {
+    Menu.date = dateFormat(date, 'yyyy-mm-dd');
     requestMenu(parseMenu);
     return Menu;
 }
