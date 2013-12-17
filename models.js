@@ -1,6 +1,7 @@
-var mongoose = require('mongoose');
+var mongoose = require('mongoose'),
+    Schema = mongoose.Schema;
 
-var menuSchema = new mongoose.Schema({
+var menuSchema = new Schema({
     date: String,
     diningHalls: {
         atwater: {
@@ -20,8 +21,4 @@ var menuSchema = new mongoose.Schema({
     }
 });
 
-var Menu = mongoose.model('Menu', menuSchema);
-
-
-
-exports.Menu = Menu;
+exports.Menu = mongoose.model('Menu', menuSchema);
