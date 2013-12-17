@@ -3,8 +3,8 @@ var request = require('request'),
     dateFormat = require('dateformat');
 
 var Menu = {
-    date: '',
-    diningHalls: {
+    date: dateFormat(new Date(), 'yyyy-mm-dd, hh:MM:ss TT'),
+    dining_halls: {
         atwater: {
             breakfast: null,
             lunch: null
@@ -18,6 +18,9 @@ var Menu = {
             breakfast: null,
             lunch: null,
             dinner: null
+        },
+        language_tables: {
+            lunch: null
         }
     }
 }
@@ -37,11 +40,12 @@ function parseMenu(err, res, body) {
         diningNodes = {
             atwater: null,
             proctor: null,
-            ross: null
+            ross: null,
+            language_tables: null
         },
         parseMeal = function(location, meal, $node) {
             var itemsArr = $node.find('.views-field-body').text().trim().split('\n');
-            Menu.diningHalls[location][meal] = itemsArr;
+            Menu.dining_halls[location][meal] = itemsArr;
         };
 
     // Separate Atwater, Proctor, Ross
@@ -56,6 +60,9 @@ function parseMenu(err, res, body) {
                 break;
             case 'Ross':
                 diningNodes.ross = $this.next();
+                break;
+            case 'Language Tables':
+                diningNodes.language_tables = $this.next();
                 break;
         }
     });
