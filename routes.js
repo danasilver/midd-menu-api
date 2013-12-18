@@ -111,12 +111,18 @@ function getAnyDateMenu(date, req, res) {
 }
 
 exports.today = function(req, res) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "X-Requested-With");
+
     Menu.findOne({date: getDateEST(new Date())}, {'_id': 0, '__v': 0}, function(err, result) {
         res.send(result);
     });
 }
 
 exports.findDate = function(req, res) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "X-Requested-With");
+    
     var requestDate = req.params.date;
 
     if (/^\d{4}-\d{2}-\d{2}$/.test(requestDate)) {
