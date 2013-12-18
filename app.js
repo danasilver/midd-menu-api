@@ -1,6 +1,6 @@
 var express = require('express'),
     mongoose = require('mongoose'),
-    models = require('./models'),
+    Menu = require('./models/Menu'),
     routes = require('./routes');
 
 var app = express();
@@ -8,6 +8,7 @@ var app = express();
 app.configure(function() {
     app.use(express.logger('dev'));
     app.use(express.bodyParser());
+    app.use(app.router);
 });
 
 var uristring = 

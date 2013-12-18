@@ -1,39 +1,50 @@
 #!/usr/bin/env node
 
-var scraper = require('./scraper'),
-    models = require('./models');
+var request = require('request'),
+    mongoose = require('mongoose'),
+    scraper = require('./scraper'),
+    routes = require('./routes'),
+    Menu = require('./models/Menu');
 
-menu = scraper.scrapeMenu(new Date());
+request({
+    method: 'GET',
+    url: 'https://menus.middlebury.edu'
+}, function(err, res, body) {
+    if (!err && res.statusCode == 200){
+        var menu = scraper.parseMenu(routes.getDateEST(new Date()), body);
 
-console.log(menu);
+        var uristring = 
+            process.env.MONGOLAB_URI ||
+            process.env.MONGOHQ_URL ||
+            'mongodb://localhost/middmenuapi';
 
-var uristring = 
-    process.env.MONGOLAB_URI ||
-    process.env.MONGOHQ_URL ||
-    'mongodb://localhost/middmenuapi';
+        mongoose.connect(uristring);
 
-var newMenu = new models.Menu ({ 
-    date: menu.date,
-        diningHalls: {
-            atwater: {
-                breakfast: menu.diningHalls.atwater.breakfast,
-                lunch: menu.diningHalls.atwater.lunch
-            },
-            proctor: {
-                breakfast: menu.diningHalls.proctor.breakfast,
-                lunch: menu.diningHalls.proctor.lunch,
-                dinner: menu.diningHalls.proctor.dinner
-            },
-            ross: {
-                breakfast: menu.diningHalls.ross.breakfast,
-                lunch: menu.diningHalls.ross.lunch,
-                dinner: menu.diningHalls.ross.dinner
-            }
-    } 
-});
+        Menu.create({ 
+            date: menu.date,
+            dining_halls: {
+                atwater: {
+                    breakfast: menu.dining_halls.atwater.breakfast,
+                    lunch: menu.dining_halls.atwater.lunch
+                },
+                proctor: {
+                    breakfast: menu.dining_halls.proctor.breakfast,
+                    lunch: menu.dining_halls.proctor.lunch,
+                    dinner: menu.dining_halls.proctor.dinner
+                },
+                ross: {
+                    breakfast: menu.dining_halls.ross.breakfast,
+                    lunch: menu.dining_halls.ross.lunch,
+                    dinner: menu.dining_halls.ross.dinner
+                },
+                language_tables: {
+                    lunch: menu.dining_halls.language_tables.lunch
+                }
+            } 
+        }, function(err) {
+            if (err) { console.log(err); }
 
-newMenu.save(function(err) {
-    if (err) {
-        console.log(err);
+            mongoose.connection.close();
+        });
     }
 });

@@ -3,7 +3,7 @@ var mongoose = require('mongoose'),
 
 var menuSchema = new Schema({
     date: String,
-    diningHalls: {
+    dining_halls: {
         atwater: {
             breakfast: Array,
             lunch: Array
@@ -17,8 +17,18 @@ var menuSchema = new Schema({
             breakfast: Array,
             lunch: Array,
             dinner: Array
+        },
+        language_tables: {
+            lunch: Array
         }
     }
 });
 
-exports.Menu = mongoose.model('Menu', menuSchema);
+if (!menuSchema.options.toObject) menuSchema.options.toObject = {};
+
+menuSchema.options.toObject.transform = function(doc, ret, options) {
+    delete ret._id;
+    delete ret.__v;
+}
+
+module.exports = mongoose.model('Menu', menuSchema);

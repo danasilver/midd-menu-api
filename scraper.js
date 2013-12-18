@@ -1,51 +1,38 @@
-var request = require('request'),
-    cheerio = require('cheerio'),
-    dateFormat = require('dateformat');
+var cheerio = require('cheerio');
 
-var Menu = {
-    date: dateFormat(new Date(), 'yyyy-mm-dd, hh:MM:ss TT'),
-    dining_halls: {
-        atwater: {
-            breakfast: null,
-            lunch: null
-        },
-        proctor: {
-            breakfast: null,
-            lunch: null,
-            dinner: null
-        },
-        ross: {
-            breakfast: null,
-            lunch: null,
-            dinner: null
-        },
-        language_tables: {
-            lunch: null
-        }
-    }
-}
-
-function requestMenu(callback) {
-    var menuURL = 'https://menus.middlebury.edu';
-    request({
-        method: 'GET',
-        url: menuURL
-    }, callback);
-}
-
-function parseMenu(err, res, body) {
-    if (err || res.statusCode !== 200) throw err;
-
-    var $ = cheerio.load(body),
+exports.parseMenu = function(menuDate, html) {
+    var $ = cheerio.load(html),
         diningNodes = {
             atwater: null,
             proctor: null,
             ross: null,
             language_tables: null
         },
+        menu = {
+            date: menuDate,
+            dining_halls: {
+                atwater: {
+                    breakfast: null,
+                    lunch: null
+                },
+                proctor: {
+                    breakfast: null,
+                    lunch: null,
+                    dinner: null
+                },
+                ross: {
+                    breakfast: null,
+                    lunch: null,
+                    dinner: null
+                },
+                language_tables: {
+                    lunch: null
+                }
+            }
+        },
         parseMeal = function(location, meal, $node) {
             var itemsArr = $node.find('.views-field-body').text().trim().split('\n');
-            Menu.dining_halls[location][meal] = itemsArr;
+            menu.dining_halls[location][meal] = itemsArr;
         };
 
     // Separate Atwater, Proctor, Ross
@@ -85,12 +72,6 @@ function parseMenu(err, res, body) {
         });
     };
 
-}
+    return menu;
 
-function scrapeMenu(date) {
-    Menu.date = dateFormat(date, 'yyyy-mm-dd');
-    requestMenu(parseMenu);
-    return Menu;
 }
-
-exports.scrapeMenu = scrapeMenu;
