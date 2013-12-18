@@ -8,7 +8,6 @@
     "express": "3.4.7",
     "request": "~2.30.0",
     "cheerio": "~0.12.4",
-    "dateformat": "~1.0.7-1.2.3",
     "mongoose": "~3.8.2"
   },
   "repository": {
