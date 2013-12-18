@@ -1,3 +1,5 @@
+require('newrelic');
+
 var express = require('express'),
     mongoose = require('mongoose'),
     Menu = require('./models/Menu'),
