@@ -115,7 +115,13 @@ exports.today = function(req, res) {
     res.header("Access-Control-Allow-Headers", "X-Requested-With");
 
     Menu.findOne({date: getDateEST(new Date())}, {'_id': 0, '__v': 0}, function(err, result) {
-        res.send(result);
+        if (result != null) {
+            res.send(result);
+        }
+        else {
+            // Err, menu not in database for today
+            getAnyDateMenu(getDateEST(new Date()), req, res);
+        }
     });
 }
 
