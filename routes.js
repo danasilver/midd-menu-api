@@ -1,4 +1,5 @@
 var request = require('request'),
+    moment = require('moment'),
     scraper = require('./scraper'),
     Menu = require('./models/Menu');
 
@@ -28,8 +29,10 @@ exports.getDateEST = getDateEST;
 // Private utility function to get menu from any date
 // and respond to a request
 function getAnyDateMenu(date, req, res) {
+    var formattedDate = moment(date, 'YYYY-MM-DD').format('dddd, MMMM D, YYYY');
+
     var payload = {
-        'field_day_value[value][date]': date,
+        'field_day_value[value][date]': formattedDate,
         'view_name': 'menus_test',
         'view_display_id': 'page',
         'view_args': '',

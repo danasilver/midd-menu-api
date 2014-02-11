@@ -9,7 +9,8 @@
     "request": "~2.30.0",
     "cheerio": "~0.12.4",
     "mongoose": "~3.8.2",
-    "newrelic": "~1.2.0"
+    "newrelic": "~1.2.0",
+    "moment": "~2.5.1"
   },
   "repository": {
     "type": "git",
