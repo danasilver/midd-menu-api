@@ -1,7 +1,7 @@
 # Middlebury Menu API
 An REST API for menus.middlebury.edu.
 
-_Updated 12/17/13_
+_Updated 3/2/14_
 
 ## Endpoints
 
