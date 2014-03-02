@@ -48,7 +48,7 @@ exports.parseMenu = function(menuDate, html) {
             case 'Ross':
                 diningNodes.ross = $this.next();
                 break;
-            case 'Language Tables':
+            case 'Language Tables/Proctor':
                 diningNodes.language_tables = $this.next();
                 break;
         }
