@@ -5,13 +5,15 @@ var request = require('request'),
 
 // Returns 'yyyy-mm-dd' in EST
 function getDateEST(dateObjUTC) {
-    var day = dateObjUTC.getDate().toString(),
+    var day = dateObjUTC.getDate(),
         month = (dateObjUTC.getMonth() + 1).toString(),
         year = dateObjUTC.getFullYear().toString(),
         hoursUTC = dateObjUTC.getHours();
 
     // Move day back if before 5am UTC
     if (hoursUTC < 5) { day --; }
+
+    day += '';
 
     // Pad month
     if (month.length < 2) { month = '0' + month; }
