@@ -1,77 +1,56 @@
-var cheerio = require('cheerio');
+'use strict';
 
-exports.parseMenu = function(menuDate, html) {
-    var $ = cheerio.load(html),
-        diningNodes = {
-            atwater: null,
-            proctor: null,
-            ross: null,
-            language_tables: null
-        },
-        menu = {
-            date: menuDate,
-            dining_halls: {
-                atwater: {
-                    breakfast: null,
-                    lunch: null
-                },
-                proctor: {
-                    breakfast: null,
-                    lunch: null,
-                    dinner: null
-                },
-                ross: {
-                    breakfast: null,
-                    lunch: null,
-                    dinner: null
-                },
-                language_tables: {
-                    lunch: null
-                }
-            }
-        },
-        parseMeal = function(location, meal, $node) {
-            var itemsArr = $node.find('.views-field-body').text().trim().split('\n');
-            menu.dining_halls[location][meal] = itemsArr;
-        };
+const Promise = require('bluebird');
+const $ = require('cheerio');
+const request = Promise.promisifyAll(require('request'));
+const moment = require('moment-timezone');
+const Menu = require('./models/Menu');
 
-    // Separate Atwater, Proctor, Ross
-    $('div.view-content h3').each(function(i, elem) {
-        var $this = $(elem);
-        switch ($this.text()) {
-            case 'Atwater':
-                diningNodes.atwater = $this.next();
-                break;
-            case 'Proctor':
-                diningNodes.proctor = $this.next();
-                break;
-            case 'Ross':
-                diningNodes.ross = $this.next();
-                break;
-            case 'Language Tables/Proctor':
-                diningNodes.language_tables = $this.next();
-                break;
-        }
+const baseUrl = 'http://menus.middlebury.edu/?field_day_value[value][date]=';
+const inputDateFormat = 'YYYY-MM-DD';
+const webDateFormat = 'dddd, MMMM D, YYYY';
+
+function scrape(date) {
+  const url = baseUrl + moment(date, inputDateFormat)
+    .tz('America/New_York')
+    .format(webDateFormat);
+
+  return new Promise(function (resolve, reject) {
+    request.getAsync(url)
+    .then(function (response) {
+      const menu = parseMenu(response.body);
+
+      resolve(menu);
+    })
+    .catch(function (err) {
+      reject(err);
     });
-
-    // Separate meals
-    for (var node in diningNodes) {
-        $(diningNodes[node]).find('td').each(function(i, elem) {
-            var $this = $(this);
-            switch ($this.find('span.views-field-field-meal').text().trim()) {
-                case 'Breakfast':
-                    parseMeal(node, 'breakfast', $this);
-                    break;
-                case 'Lunch':
-                    parseMeal(node, 'lunch', $this);
-                    break;
-                case 'Dinner':
-                    parseMeal(node, 'dinner', $this);
-                    break;
-            }
-        });
-    };
-
-    return menu;
-
+  });
 }
+
+function parseMenu(html) {
+  let menu = new Menu().toObject().dining_halls;
+
+  $(html).find('.view-content h3').each(function (i, el) {
+    const diningHall = $(el).text().toLowerCase();
+
+    menu[diningHall] = parseDiningHall($(el).next());
+  });
+
+  return menu;
+}
+
+function parseDiningHall($html) {
+  let meals = {breakfast: [], lunch: [], dinner: []};
+
+  $html.find('td').each(function (i, el) {
+    const mealName = $(el).find('.views-field-field-meal').text().trim().toLowerCase();
+    const mealItems = $(el).find('.views-field-body').text().trim();
+
+    meals[mealName] = mealItems.split('\n');
+  });
+
+  return meals;
+}
+
+exports.scrape = scrape;

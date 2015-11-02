@@ -1,36 +1,25 @@
-require('newrelic');
+'use strict';
 
-var express = require('express'),
-    mongoose = require('mongoose'),
-    Menu = require('./models/Menu'),
-    routes = require('./routes');
+// require('newrelic');
 
-var app = express();
+const express = require('express');
+const mongoose = require('mongoose');
+const routes = require('./routes');
+const config = require('./config')
 
-app.configure(function() {
-    app.use(express.logger('dev'));
-    app.use(express.bodyParser());
-    app.use(app.router);
+const app = express();
+
+mongoose.connect(config.mongodbURI, function(err, res) {
+  if (err)
+    throw new Error(err);
+  else
+    console.log('Connected to MongoDB.');
 });
 
-var uristring = 
-    process.env.MONGOLAB_URI ||
-    process.env.MONGOHQ_URL ||
-    'mongodb://localhost/middmenuapi';
+app.get('/', routes.routeToday);
+app.get('/:date', routes.routeDate);
 
-mongoose.connect(uristring, function(err, res) {
-    if (err) {
-        console.log('Error connecting to: ' + uristring + '. ' + err);
-    }
-    else {
-        console.log('Succeeded connecting to: ' + uristring);
-    }
-});
-
-app.get('/', routes.today);
-app.get('/:date', routes.findDate);
-
-var port = process.env.PORT || 3000;
+const port = process.env.PORT || 3000;
 app.listen(port, function() {
-    console.log('Listening on ' + port);
+  console.log('Listening on port: ' + port);
 });

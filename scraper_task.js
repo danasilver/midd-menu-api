@@ -1,55 +1,29 @@
 #!/usr/bin/env node
 
-var request = require('request'),
-    moment = require('moment'),
-    mongoose = require('mongoose'),
-    scraper = require('./scraper'),
-    routes = require('./routes'),
-    Menu = require('./models/Menu');
+'use strict';
 
-var requestURL = 'https://menus.middlebury.edu/dining?' +
-                 encodeURIComponent('field_day_value[value][date]') +
-                 '=' + moment(routes.getDateEST(new Date()), 'YYYY-MM-DD').format('dddd, MMMM D, YYYY').replace(/ /g, "%20");
+const moment = require('moment-timezone');
+const mongoose = require('mongoose');
+const scraper = require('./scraper');
+const routes = require('./routes');
+const Menu = require('./models/Menu');
+const config = require('./config');
 
-request({
-    method: 'GET',
-    url: requestURL,
-}, function(err, res, body) {
-    if (!err && res.statusCode == 200){
-        var menu = scraper.parseMenu(routes.getDateEST(new Date()), body);
+const today = moment().tz('America/New_York').format('YYYY-MM-DD');
 
-        var uristring = 
-            process.env.MONGOLAB_URI ||
-            process.env.MONGOHQ_URL ||
-            'mongodb://localhost/middmenuapi';
+scraper.scrape(today)
+.then(function (diningHalls) {
+  mongoose.connect(config.mongodbURI);
 
-        mongoose.connect(uristring);
+  const menu = {
+    date: today,
+    dining_halls: diningHalls
+  };
 
-        Menu.create({ 
-            date: menu.date,
-            dining_halls: {
-                atwater: {
-                    breakfast: menu.dining_halls.atwater.breakfast,
-                    lunch: menu.dining_halls.atwater.lunch
-                },
-                proctor: {
-                    breakfast: menu.dining_halls.proctor.breakfast,
-                    lunch: menu.dining_halls.proctor.lunch,
-                    dinner: menu.dining_halls.proctor.dinner
-                },
-                ross: {
-                    breakfast: menu.dining_halls.ross.breakfast,
-                    lunch: menu.dining_halls.ross.lunch,
-                    dinner: menu.dining_halls.ross.dinner
-                },
-                language_tables: {
-                    lunch: menu.dining_halls.language_tables.lunch
-                }
-            } 
-        }, function(err) {
-            if (err) { console.log(err); }
+  Menu.create(menu, function (err) {
+    if (err)
+      throw new Error(err);
 
-            mongoose.connection.close();
-        });
-    }
+    mongoose.connection.close();
+  });
 });
