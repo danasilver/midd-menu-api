@@ -11,9 +11,7 @@ const inputDateFormat = 'YYYY-MM-DD';
 const webDateFormat = 'dddd, MMMM D, YYYY';
 
 function scrape(date) {
-  const url = baseUrl + moment(date, inputDateFormat)
-    .tz('America/New_York')
-    .format(webDateFormat);
+  const url = baseUrl + moment(date, inputDateFormat).format(webDateFormat);
 
   return new Promise(function (resolve, reject) {
     request.getAsync(url)
