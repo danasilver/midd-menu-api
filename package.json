@@ -10,7 +10,7 @@
     "express": "^3.4.7",
     "moment-timezone": "^0.4.1",
     "mongoose": "4.2.3",
-    "newrelic": "^1.2.0",
+    "newrelic": "1.23.0",
     "request": "^2.30.0"
   },
   "repository": {
